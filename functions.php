@@ -35,6 +35,10 @@ function billa_enqueue_styles() {
     wp_enqueue_style('billa-style-index', get_template_directory_uri(  ) . "/build/index.css");
     wp_enqueue_style('billa-style', get_template_directory_uri(  ) . "/build/style-index.css");
     wp_enqueue_script( "index-js", get_template_directory_uri() . "/build/index.js", array('jquery'), '1.0', true );
+
+    wp_localize_script('index-js', 'universityData', array(
+      'root_url' => get_site_url( )
+    ));
 }
 add_action( "wp_enqueue_scripts", "billa_enqueue_styles" );
 
