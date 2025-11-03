@@ -1,5 +1,13 @@
 <?php 
 
+require get_theme_file_path( '/inc/search-route.php' );
+function university_custom_rest() {
+  register_rest_field( 'post', 'autherName', array(
+    'get_callback' => function() {return get_the_author( );}
+  ) );
+}
+add_action( 'rest_api_init', 'university_custom_rest' );
+
 function pageBanner( $args = NULL ) {
 
   if(!isset($args['title'])) {
@@ -66,7 +74,7 @@ function university_adjust_queries($query) {
     $query->set('meta_query', array(
       array(
         'key' => 'event_date',
-        'compare' => '>=',
+        'compare' => '<=',
         'value' => $today,
         'type' => 'numeric'
       )
