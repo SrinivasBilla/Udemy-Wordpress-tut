@@ -45,7 +45,8 @@ function billa_enqueue_styles() {
     wp_enqueue_script( "index-js", get_template_directory_uri() . "/build/index.js", array('jquery'), '1.0', true );
 
     wp_localize_script('index-js', 'universityData', array(
-      'root_url' => get_site_url( )
+      'root_url' => get_site_url( ),
+      'nonce' => wp_create_nonce( 'wp_rest' )
     ));
 }
 add_action( "wp_enqueue_scripts", "billa_enqueue_styles" );
@@ -88,3 +89,41 @@ function universityMapKey($api) {
 }
 
 add_filter( 'acf/fields/google_maps/api', 'universityMapKey' );
+
+add_action( 'admin_init', 'redirectSubsToFrontend' );
+function redirectSubsToFrontend() {
+  $ourCurrentUser = wp_get_current_user(  );
+  if( count($ourCurrentUser->roles) == 1 AND $ourCurrentUser->roles[0] == 'subscriber' ) {
+    wp_redirect( site_url( '/' ) );
+    exit;
+  }
+}
+add_action( 'wp_loaded', 'noSubsAdminBar' );
+
+function noSubsAdminBar() {
+  $ourCurrentUser = wp_get_current_user();
+  if(count($ourCurrentUser->roles) == 1 AND $ourCurrentUser->roles[0] == 'subscriber') {
+    show_admin_bar(false);
+  }
+}
+
+add_filter( 'login_headerurl', 'ourHeaderUrl' );
+
+function ourHeaderUrl() {
+  return esc_url( site_url( '/' ) );
+}
+
+add_action( 'login_enqueue_scripts', 'ourLoginCSS');
+
+function ourLoginCSS() {
+    wp_enqueue_style('custom-google-fonts', "custom-google-fonts', '//fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i");
+    wp_enqueue_style('font-awsome', "//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
+    wp_enqueue_style('billa-style-index', get_template_directory_uri(  ) . "/build/index.css");
+    wp_enqueue_style('billa-style', get_template_directory_uri(  ) . "/build/style-index.css");
+}
+
+add_filter ( 'login_headertext', 'ourLoginTitle' );
+
+function ourLoginTitle() {
+  return get_bloginfo( 'name' );
+}
