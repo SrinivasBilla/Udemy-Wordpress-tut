@@ -6104,9 +6104,10 @@ class MyNotes {
     this.events();
   }
   events() {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(".delete-note").on("click", this.deleteNote);
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(".edit-note").on("click", this.editNate.bind(this));
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(".update-note").on("click", this.upDateNaote.bind(this));
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("#my-notes").on("click", ".delete-note", this.deleteNote);
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("#my-notes").on("click", ".edit-note", this.editNate.bind(this));
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("#my-notes").on("click", ".update-note", this.upDateNote.bind(this));
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(".submit-note").on("click", this.createNote.bind(this));
   }
 
   //Edit Note Methode
@@ -6154,7 +6155,7 @@ class MyNotes {
       }
     });
   }
-  upDateNaote(e) {
+  upDateNote(e) {
     var thisNote = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e.target).parents("li");
     var ourUpdatedPost = {
       "title": thisNote.find(".note-title-field").val(),
@@ -6170,6 +6171,36 @@ class MyNotes {
       success: responce => {
         this.makeNoteReadOnly(thisNote);
         console.log("Congrats!");
+        console.log(responce);
+      },
+      error: responce => {
+        console.log("Sorry");
+        console.log(responce);
+      }
+    });
+  }
+  createNote(e) {
+    var ourNewPost = {
+      "title": jquery__WEBPACK_IMPORTED_MODULE_0___default()(".new-note-title").val(),
+      "content": jquery__WEBPACK_IMPORTED_MODULE_0___default()(".new-note-body").val(),
+      "status": "publish"
+    };
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => {
+        xhr.setRequestHeader("X-WP-Nonce", universityData.nonce);
+      },
+      url: universityData.root_url + "/wp-json/wp/v2/note/",
+      type: "POST",
+      data: ourNewPost,
+      success: responce => {
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()('.new-note-title, .new-note-body').val(''), jquery__WEBPACK_IMPORTED_MODULE_0___default()(`<li data-id="${responce.id}">
+          <input readonly class="note-title-field" value="${responce.title.raw}"></input>
+          <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
+          <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
+          <textarea readonly class="note-body-field" readonly>${responce.content.raw}</textarea>
+          <span class="update-note btn btn--blue btn--small"><i class="fa fa-arrow-right" aria-hidden="true"></i> Save</span>
+      </li>
+          `).prependTo("#my-notes").hide().slideDown(), console.log("Congrats!");
         console.log(responce);
       },
       error: responce => {
